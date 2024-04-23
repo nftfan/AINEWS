@@ -75,17 +75,16 @@
             padding: 5px; /* smaller padding */
         }
     }
-	/* Add a custom style for links */
-a {
-    text-decoration: none; /* Remove default underline */
-    color: inherit; /* Inherit color from parent element */
-}
+    /* Add a custom style for links */
+    a {
+        text-decoration: none; /* Remove default underline */
+        color: inherit; /* Inherit color from parent element */
+    }
 
-a:hover {
-    text-decoration: underline; /* Underline on hover */
-    color: inherit; /* Inherit color from parent element */
-}
-
+    a:hover {
+        text-decoration: underline; /* Underline on hover */
+        color: inherit; /* Inherit color from parent element */
+    }
 </style>
 </head>
 <body>
@@ -122,6 +121,33 @@ a:hover {
             .catch(error => console.error('Error:', error));
     }
 
+    // Function to calculate the time elapsed since the publication date
+    function timeSince(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        const interval = Math.floor(seconds / 31536000);
+
+        if (interval > 1) {
+            return interval + " years ago";
+        }
+        const intervalMonths = Math.floor(seconds / 2592000);
+        if (intervalMonths > 1) {
+            return intervalMonths + " months ago";
+        }
+        const intervalDays = Math.floor(seconds / 86400);
+        if (intervalDays > 1) {
+            return intervalDays + " days ago";
+        }
+        const intervalHours = Math.floor(seconds / 3600);
+        if (intervalHours > 1) {
+            return intervalHours + " hours ago";
+        }
+        const intervalMinutes = Math.floor(seconds / 60);
+        if (intervalMinutes > 1) {
+            return intervalMinutes + " minutes ago";
+        }
+        return Math.floor(seconds) + " seconds ago";
+    }
+
     // Function to search news based on user input
     function searchNews() {
         const searchQuery = document.getElementById('searchQuery').value;
@@ -144,13 +170,13 @@ a:hover {
 
                 items.forEach(item => {
                     const title = item.querySelector('title').textContent;
-                    const pubDate = new Date(item.querySelector('pubDate').textContent).toLocaleDateString();
+                    const pubDate = new Date(item.querySelector('pubDate').textContent);
                     const link = item.querySelector('link').textContent; // Retrieve link
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><a href="${link}" target="_blank">${title}</a></td> <!-- Make title clickable with link -->
-                        <td>${pubDate}</td>
+                        <td>${timeSince(pubDate)}</td> <!-- Display time elapsed instead of date -->
                     `;
                     newsTable.appendChild(row);
                 });
@@ -167,4 +193,5 @@ a:hover {
 
 </body>
 </html>
+
 
