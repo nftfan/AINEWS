@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFTFANS AI NEWS</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #1f1f1f; /* dark mode background color */
+        color: #888; /* grey text color */
+        font-size: 10px; /* 10px font size */
+        padding: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #444; /* border color */
+    }
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #444; /* border color */
+    }
+    th {
+        background-color: #333; /* table header background color */
+        color: #fff; /* table header text color */
+    }
+    tr:nth-child(even) {
+        background-color: #2f2f2f; /* alternate row background color */
+    }
+    tr:hover {
+        background-color: #3f3f3f; /* hover row background color */
+    }
+    @media screen and (max-width: 600px) {
+        table {
+            font-size: 8px; /* reduce font size for smaller screens */
+        }
+        th, td {
+            padding: 5px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<h1>NFTFANS AI NEWS</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody id="news"></tbody>
+</table>
+
+<script>
+    // Function to fetch RSS feed using proxy server
+    function fetchRSS(url) {
+        return fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url))
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => new window.DOMParser().parseFromString(data.contents, 'text/xml'))
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Fetching RSS feed
+    fetchRSS('https://news.google.com/rss/search?q=artificial%20intelligence&hl=en-US&gl=US&ceid=US%3Aen')
+        .then(data => {
+            const items = Array.from(data.querySelectorAll('item'));
+            const newsTable = document.getElementById('news');
+
+            // Sort items by date
+            items.sort((a, b) => {
+                const dateA = new Date(a.querySelector('pubDate').textContent);
+                const dateB = new Date(b.querySelector('pubDate').textContent);
+                return dateB - dateA;
+            });
+
+            items.forEach(item => {
+                const title = item.querySelector('title').textContent;
+                const pubDate = new Date(item.querySelector('pubDate').textContent).toLocaleDateString();
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${title}</td>
+                    <td>${pubDate}</td>
+                `;
+                newsTable.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+
+</body>
+</html>
