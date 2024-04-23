@@ -100,6 +100,7 @@
 <table>
   <thead>
     <tr>
+      <th>Image</th>
       <th>Title</th>
       <th>Date</th>
     </tr>
@@ -172,9 +173,11 @@
                     const title = item.querySelector('title').textContent;
                     const pubDate = new Date(item.querySelector('pubDate').textContent);
                     const link = item.querySelector('link').textContent; // Retrieve link
+                    const imageId = Math.floor(Math.random() * 1000); // Generate random image ID
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                        <td><img src="https://picsum.photos/50/50?random=${imageId}" alt="Random Image"></td>
                         <td><a href="${link}" target="_blank">${title}</a></td> <!-- Make title clickable with link -->
                         <td>${timeSince(pubDate)}</td> <!-- Display time elapsed instead of date -->
                     `;
@@ -193,5 +196,3 @@
 
 </body>
 </html>
-
-
