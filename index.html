@@ -12,6 +12,37 @@
         font-size: 12px; /* 10px font size */
         padding: 10px;
     }
+    h1 {
+        color: #fff; /* white text color */
+    }
+    p {
+        margin-bottom: 5px;
+    }
+    .search-container {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    .search-container input[type=text] {
+        padding: 8px;
+        border: 1px solid #ccc; /* border color */
+        border-radius: 4px;
+        flex: 1;
+        margin-right: 5px;
+    }
+    .search-container button {
+        padding: 8px 16px;
+        background-color: #4CAF50; /* green button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .search-container button:hover {
+        background-color: #45a049; /* darker green button color on hover */
+    }
+    .loading-message {
+        color: #00f; /* blue text color */
+    }
     table {
         width: 100%;
         border-collapse: collapse;
@@ -44,7 +75,12 @@
 <body>
 
 <h1>NFTFANS AI NEWS</h1>
-<p>Please wait, We are loading AI News Headlines...</p>
+<p>Please enter your search query:</p>
+<div class="search-container">
+    <input type="text" id="searchQuery" placeholder="Enter search query...">
+    <button onclick="searchNews()">Search</button>
+</div>
+<p id="loadingMessage" class="loading-message"></p>
 
 <table>
   <thead>
@@ -70,32 +106,45 @@
             .catch(error => console.error('Error:', error));
     }
 
-    // Fetching RSS feed
-    fetchRSS('https://news.google.com/rss/search?q=artificial%20intelligence&hl=en-US&gl=US&ceid=US%3Aen')
-        .then(data => {
-            const items = Array.from(data.querySelectorAll('item'));
-            const newsTable = document.getElementById('news');
+    // Function to search news based on user input
+    function searchNews() {
+        const searchQuery = document.getElementById('searchQuery').value;
+        const rssURL = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US%3Aen`;
 
-            // Sort items by date
-            items.sort((a, b) => {
-                const dateA = new Date(a.querySelector('pubDate').textContent);
-                const dateB = new Date(b.querySelector('pubDate').textContent);
-                return dateB - dateA;
-            });
+        document.getElementById('loadingMessage').innerText = 'Please wait, searching for latest news...';
 
-            items.forEach(item => {
-                const title = item.querySelector('title').textContent;
-                const pubDate = new Date(item.querySelector('pubDate').textContent).toLocaleDateString();
+        fetchRSS(rssURL)
+            .then(data => {
+                const items = Array.from(data.querySelectorAll('item'));
+                const newsTable = document.getElementById('news');
+                newsTable.innerHTML = ''; // Clear existing table
 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${title}</td>
-                    <td>${pubDate}</td>
-                `;
-                newsTable.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Error:', error));
+                // Sort items by date
+                items.sort((a, b) => {
+                    const dateA = new Date(a.querySelector('pubDate').textContent);
+                    const dateB = new Date(b.querySelector('pubDate').textContent);
+                    return dateB - dateA;
+                });
+
+                items.forEach(item => {
+                    const title = item.querySelector('title').textContent;
+                    const pubDate = new Date(item.querySelector('pubDate').textContent).toLocaleDateString();
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${title}</td>
+                        <td>${pubDate}</td>
+                    `;
+                    newsTable.appendChild(row);
+                });
+
+                document.getElementById('loadingMessage').innerText = ''; // Clear loading message
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Initial load: Load default news (artificial intelligence)
+    searchNews();
 </script>
 
 </body>
