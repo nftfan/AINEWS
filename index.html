@@ -7,84 +7,106 @@
 <style>
     body {
         font-family: Arial, sans-serif;
-        background-color: #1f1f1f; /* dark mode background color */
-        color: #888; /* grey text color */
-        font-size: 14px; /* smaller font size */
-        padding: 10px;
+        background-color: #000000; /* light background color */
+        color: #333; /* text color */
+        padding: 20px;
     }
+
     h1 {
-        color: #fff; /* white text color */
+        color: #ffffff; /* dark text color */
     }
-    p {
-        margin-bottom: 5px;
-    }
+
     .search-container {
         display: flex;
-        flex-direction: column; /* Changed to column layout */
-        margin-bottom: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+		background-color: #000000;
     }
+
     .search-container input[type=text] {
-        padding: 5px; /* smaller padding */
-        font-size: 14px; /* smaller font size */
+        padding: 10px; /* increased padding */
+        font-size: 16px; /* larger font size */
         border: 1px solid #ccc; /* border color */
-        border-radius: 24px;
-        width: 200px; /* smaller width */
-        margin-bottom: 5px; /* Added margin bottom */
+        border-radius: 5px;
+        flex: 1; /* take remaining space */
+		color: #000000;
     }
+
     .search-container button {
-        padding: 5px 10px; /* smaller padding */
-        font-size: 14px; /* smaller font size */
+        padding: 10px 20px; /* increased padding */
+        font-size: 16px; /* larger font size */
         background-color: #4CAF50; /* green button color */
         color: white;
         border: none;
-        border-radius: 24px;
+        border-radius: 5px;
         cursor: pointer;
-        width: 100px; /* smaller width */
+        margin-left: 10px;
     }
+
     .search-container button:hover {
         background-color: #45a049; /* darker green button color on hover */
     }
-    .loading-message {
-        color: #00f; /* blue text color */
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #444; /* border color */
-    }
-    th, td {
-        padding: 8px; /* smaller padding */
-        border-bottom: 1px solid #444; /* border color */
-        color: #888; /* grey text color */
-    }
-    th {
-        background-color: #333; /* table header background color */
-        color: #fff; /* table header text color */
-    }
-    tr:nth-child(even) {
-        background-color: #2f2f2f; /* alternate row background color */
-    }
-    tr:hover {
-        background-color: #3f3f3f; /* hover row background color */
-    }
-    @media screen and (max-width: 600px) {
-        table {
-            font-size: 12px; /* reduce font size for smaller screens */
-        }
-        th, td {
-            padding: 5px; /* smaller padding */
-        }
-    }
-    /* Add a custom style for links */
-    a {
-        text-decoration: none; /* Remove default underline */
-        color: inherit; /* Inherit color from parent element */
+
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center; /* Center cards horizontally */
     }
 
-    a:hover {
-        text-decoration: underline; /* Underline on hover */
-        color: inherit; /* Inherit color from parent element */
+    .card {
+        background-color: #000000;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 100%; /* Display one card per row on mobile */
+        max-width: 300px; /* Limit card width */
+        padding: 20px;
+		border: 1px solid #262626; /* border at the bottom of image */
     }
+
+    .card img {
+        width: 100%;
+        height: auto;
+        
+		border-radius: 5px;
+    }
+
+    .card h2 {
+        font-size: 16px; /* larger font size */
+        font-weight: bold; /* bold font weight */
+        margin-top: 10px; /* spacing between image and title */
+		color: #ffffff;
+    }
+
+    .card p {
+        font-size: 14px; /* smaller font size */
+        color: #666; /* darker grey text color */
+        margin-top: 10px; /* spacing between title and date */
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+        background-color: #333;
+        color: #fff;
+    }
+
+    body.dark-mode .search-container input[type=text],
+    body.dark-mode .search-container button {
+        background-color: #555;
+        color: #fff;
+    }
+
+    body.dark-mode .card {
+        background-color: #444;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .card img {
+        border-bottom: 1px solid #666;
+    }
+
 </style>
 </head>
 <body>
@@ -97,16 +119,7 @@
 </div>
 <p id="loadingMessage" class="loading-message"></p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Image</th>
-      <th>Title</th>
-      <th>Date</th>
-    </tr>
-  </thead>
-  <tbody id="news"></tbody>
-</table>
+<div class="card-container" id="news"></div>
 
 <script>
     // Function to fetch RSS feed using proxy server
@@ -150,49 +163,75 @@
     }
 
     // Function to search news based on user input
-    function searchNews() {
-        const searchQuery = document.getElementById('searchQuery').value;
-        const rssURL = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US%3Aen`;
+function searchNews() {
+    const searchQuery = document.getElementById('searchQuery').value;
+    const rssURL = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US%3Aen`;
 
-        document.getElementById('loadingMessage').innerText = 'Please wait, searching for latest news...';
+    document.getElementById('loadingMessage').innerText = 'Please wait, searching for latest news...';
 
-        fetchRSS(rssURL)
-            .then(data => {
-                const items = Array.from(data.querySelectorAll('item'));
-                const newsTable = document.getElementById('news');
-                newsTable.innerHTML = ''; // Clear existing table
+    fetchRSS(rssURL)
+        .then(data => {
+            const items = Array.from(data.querySelectorAll('item'));
+            const sortedItems = items.sort((a, b) => {
+                const dateA = new Date(a.querySelector('pubDate').textContent);
+                const dateB = new Date(b.querySelector('pubDate').textContent);
+                return dateB - dateA; // Sort in descending order (latest first)
+            });
 
-                // Sort items by date
-                items.sort((a, b) => {
-                    const dateA = new Date(a.querySelector('pubDate').textContent);
-                    const dateB = new Date(b.querySelector('pubDate').textContent);
-                    return dateB - dateA;
-                });
+            const newsContainer = document.getElementById('news');
+            newsContainer.innerHTML = ''; // Clear existing content
 
-                items.forEach(item => {
-                    const title = item.querySelector('title').textContent;
-                    const pubDate = new Date(item.querySelector('pubDate').textContent);
-                    const link = item.querySelector('link').textContent; // Retrieve link
-                    const imageId = Math.floor(Math.random() * 1000); // Generate random image ID
+            sortedItems.forEach(item => {
+                const title = item.querySelector('title').textContent;
+                const pubDate = new Date(item.querySelector('pubDate').textContent);
+                const link = item.querySelector('link').textContent; // Retrieve link
+                const imageId = Math.floor(Math.random() * 1000); // Generate random image ID
 
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><img src="https://picsum.photos/50/50?random=${imageId}" alt="Random Image"></td>
-                        <td><a href="${link}" target="_blank">${title}</a></td> <!-- Make title clickable with link -->
-                        <td>${timeSince(pubDate)}</td> <!-- Display time elapsed instead of date -->
-                    `;
-                    newsTable.appendChild(row);
-                });
+                // Create card element
+                const card = document.createElement('div');
+                card.classList.add('card');
 
-                document.getElementById('loadingMessage').innerText = ''; // Clear loading message
-            })
-            .catch(error => console.error('Error:', error));
-    }
+                // Create image element
+                const image = document.createElement('img');
+                image.src = `https://picsum.photos/300/200?random=${imageId}`;
+                image.alt = 'Random Image';
 
-    // Initial load: Load default news (artificial intelligence)
-    searchNews();
+                // Create title element
+                const titleElement = document.createElement('h2');
+                titleElement.textContent = title;
+
+                // Create date element
+                const dateElement = document.createElement('p');
+                dateElement.textContent = timeSince(pubDate);
+
+                // Create link element
+                const linkElement = document.createElement('a');
+                linkElement.href = link;
+                linkElement.textContent = 'Read More';
+linkElement.style.color = 'grey';
+
+                linkElement.target = '_blank';
+
+                // Append elements to card
+                card.appendChild(image);
+                card.appendChild(titleElement);
+                card.appendChild(dateElement);
+                card.appendChild(linkElement);
+
+                // Append card to container
+                newsContainer.appendChild(card);
+            });
+
+            document.getElementById('loadingMessage').innerText = ''; // Clear loading message
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Initial load: Load default news (artificial intelligence)
+searchNews();
+
 </script>
-
 
 </body>
 </html>
+
